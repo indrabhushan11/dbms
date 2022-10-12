@@ -1,0 +1,67 @@
+db.createCollection('employee')
+db.createCollection('department')
+db.createCollection('project')
+
+
+db.employee.insertOne({
+"ssn":101,"name":"sanjana",'gender':'female',"salary":800000,"depid":201,'qualification':['bca','mca'],"designation":"senior software engineer","experience":9,
+"dob":"09-08-1999",
+'dependants':[{'name':'krishna','relationship':'father'},{'name':'ashwini','relationship':'mother'}],'workson':[{'pno':301,'phour':5}]});
+
+db.employee.insertOne({
+"ssn":102,"name":"suraj",'gender':'male',"salary":90000,"depid":201,'qualification':['bsc','mca'],"designation":"senior software engineer","experience":1,
+"dob":"29-06-2002",
+'dependants':[{'name':'nagendra','relationship':'father'}],'workson':[{'pno':301,'phour':1}]});
+
+db.employee.insertOne({
+"ssn":103,"name":"yamini",'gender':'female',"salary":23500,"depid":201,'qualification':['bca','mca'],"designation":"senior software engineer","experience":5,
+"dob":"13-04-1997",
+'dependants':[{'name':'abhijeet','relationship':'fiance'}],'workson':[{'pno':301,'phour':9},{'pno':302,'phour':3}]});
+
+db.employee.insertOne({
+"ssn":104,"name":"ambika",'gender':'female',"salary":103400,"depid":202,'qualification':['bsc'],"designation":"junior software engineer","experience":10,
+"dob":"29-06-1092",
+'dependants':[{'name':'harshal','relationship':'son'}],'workson':[{'pno':302,'phour':6}]});
+
+db.employee.insertOne({
+"ssn":105,"name":"yash",'gender':'male',"salary":73500,"depid":203,'qualification':['bcs','mca'],"designation":"senior software engineer","experience":9,
+"dob":"11-03-1993",
+'dependants':[{'name':'vanshika','relationship':'fiance'}],'workson':[{'pno':301,'phour':2},{'pno':302,'phour':3}]});
+
+
+
+db.department.insertOne({'depid':201,'depname':'finance','depmngr':101})
+
+db.department.insertOne({'depid':202,'depname':'operations','depmngr':104})
+
+db.department.insertOne({'depid':203,'depname':'customer service','depmngr':105})
+
+db.project.insertOne({'pid':301,'pname':'Profit Report','depid':201,'pstart':'2022-04-11','pend':'2022-05-01'})
+db.project.insertOne({'pid':302,'pname':'Customer Satisfaction Report','depid':201,'pstart':'2022-01-19'})
+
+Queries
+
+
+
+2) Sort the employee list by ssn
+
+Ascending : db.employee.find().sort({"ssn":1})
+descending : db.employee.find().sort({"ssn":-1})
+
+3)List the employee who are working in finance department
+
+db.employee.find({"depid":201})
+
+4)Find employee who draws max salary
+
+db.employee.find({salary:db.employee.aggregate([{$group:{_id:null,maxsal:{$max:'$salary'}}}]).toArray()[0].maxsal})
+
+
+5)Update the record of employee who has worked on max projects as “Employee of the Year”
+db.employee.update({_id:db.employee.aggregate([{$project:{count:{$size:'$workson'}}},{$sort:{'count':-1}}]).toArray()[0]._id},
+{$set:{'title':'Employee of the year'}})
+
+6)Delete Employee with Minimum Experience
+db.employee.deleteOne({experience:db.employee.aggregate([{$group:{_id:null,MinExp:{$min:'$experience'}}}]).toArray()[0].MinExp})
+
+

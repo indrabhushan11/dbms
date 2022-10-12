@@ -1,0 +1,165 @@
+create table solar (pv varchar(15) primary key,capacity varchar(15),sprice varchar(15),stype varchar(15),warranty varchar(15));
+
+create table distributor(tin varchar(15) primary key,dname varchar(15),daddress varchar(15),contact varchar(15));
+
+create table users(hno varchar(15) primary key,uname varchar(15),uaddress varchar(15),ussage varchar(15));
+
+create table sold(tin varchar(15),pv varchar(15),
+foreign key(pv) references solar(pv),
+foreign key(tin) references distributor(tin),primary key(pv,tin));
+
+create table installation(pv varchar(15),tin varchar(15),
+hno varchar(15),charge varchar(15),
+date date,ins_type varchar(15),
+foreign key(pv) references solar(pv),
+foreign key(tin) references distributor(tin),
+foreign key(hno) references users(hno));
+
+create table purchased(pv varchar(15),hno varchar(15),
+foreign key(pv) references solar(pv),
+foreign key(hno) references users(hno));
+
+
+
+insert into solar values('p01','200l','40000','monocrystalline','15yrs');
+insert into solar values('p02','150l','60000','polycrystalline','25yrs');
+insert into solar values('p03','250l','40000','monocrystalline','15yrs');
+insert into solar values('p04','200l','60000','polycrystalline','25yrs');
+insert into solar values('p05','250l','60000','polycrystalline','25yrs');
+insert into solar values('p06','150l','40000','monocrystalline','15yrs');
+insert into solar values('p07','150l','60000','polycrystalline','25yrs');
+
+
+
+
+insert into distributor values('t01','tata','mumbai','8452136545');
+insert into distributor values('t02','reliance','bengaluru','5856824445');
+insert into distributor values('t03','voltas','belagavi','7455458545');
+insert into distributor values('t05','cogni','bengaluru','9456465664');
+insert into distributor values('t06','bharat','belagavi','8485473689');
+
+
+insert into users values('hno1','abhilash','belagavi','domestic');
+insert into users values('hno2','iruka','bengaluru','commercial');
+insert into users values('hno3','ramesh','bengaluru','domestic');
+insert into users values('hno4','atul','belagavi','domestic');
+insert into users values('hno5','indotech','mumbai','commercial');
+insert into users values('hno6','techbyte','hubli','commercial');
+insert into users values('hno7','krupa','belagavi','domestic');
+insert into users values('hno8','jayatech','dharward','domestic');
+insert into users values('hno9','gokuldiary','mumbai','commercial');
+
+
+
+
+
+
+insert into sold values('t01','p01');
+insert into sold values('t02','p01');
+insert into sold values('t03','p02');
+insert into sold values('t04','p02');
+insert into sold values('t05','p02');
+insert into sold values('t06','p03');
+insert into sold values('t06','p04');
+insert into sold values('t01','p07');
+insert into sold values('t02','p07');
+insert into sold values('t03','p07');
+insert into sold values('t04','p05');
+insert into sold values('t05','p03');
+insert into sold values('t06','p04');
+
+
+
+
+
+insert into installation values('p01','t01','hno1','1000','2003-01-21','monocrystalline');
+insert into installation values('p02','t02','hno2','2000','2017-03-04','polycrystalline');
+insert into installation values('p03','t03','hno3','1000','2021-05-15','monocrystalline');
+insert into installation values('p03','t02','hno4','2000','2021-11-26','polycrystalline');
+insert into installation values('p04','t03','hno3','2000','2022-06-18','polycrystalline');
+insert into installation values('p05','t05','hno4','1000','2019-04-23','monocrystalline');
+insert into installation values('p06','t06','hno9','1000','2016-02-25','monocrystalline');
+insert into installation values('p04','t01','hno2','2000','2013-02-11','polycrystalline');
+insert into installation values('p05','t01','hno5','1000','2014-05-04','monocrystalline');
+insert into installation values('p06','t01','hno6','2000','2015-06-24','polycrystalline');
+insert into installation values('p07','t06','hno3','1000','2016-01-06','monocrystalline');
+
+
+
+insert into purchased values('p01','hno4');
+insert into purchased values('p02','hno3');
+insert into purchased values('p03','hno4');
+insert into purchased values('p03','hno3');
+insert into purchased values('p04','hno6');
+insert into purchased values('p05','hno4');
+insert into purchased values('p03','hno5');
+insert into purchased values('p04','hno3');
+insert into purchased values('p02','hno5');
+insert into purchased values('p01','hno2');
+insert into purchased values('p02','hno1');
+insert into purchased values('p05','hno3');
+insert into purchased values('p03','hno1');
+
+
+update installation set ins_type="domestic" where ins_type="polycrystalline";
+update installation set ins_type="commercial" where ins_type="monocrystalline";
+
+
+
+
+1)
+select d.dname,count(d.tin) from distributor d,installation i
+where i.tin=d.tin 
+and i.ins_type="domestic" 
+group by d.tin 
+order by max(d.tin);
+
+
+
+2)
+select u.uaddress from users u,solar s,installation i
+where u.hno=i.hno
+and s.pv=i.pv
+and s.capacity=(select max(capacity) from solar);
+
+
+
+
+3) 
+select distinct u.uaddress,u.hno from users u,solar s,installation i
+where u.hno=i.hno
+and s.pv=i.pv 
+and s.stype="monocrystalline"
+
+
+
+4)
+select u.uaddress,sum(i.charge) from users u, installation i
+where u.hno=i.hno
+group by (u.uaddress);
+
+
+
+5)
+select d.*,s.* ,i.date from distributor d,solar s,installation i 
+where d.tin=i.tin
+and s.pv=i.pv
+and i.date in(select min(date) from installation);
+
+
+
+6)
+select sum(i.charge)/(select count(*) as average from installation) as average_scale from installation i
+where i.ins_type="commercial";
+
+
+
+
+
+
+
+
+
+
+
+

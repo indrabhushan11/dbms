@@ -1,0 +1,184 @@
+CREATE TABLE musician (
+	musician_ssn VARCHAR(10) PRIMARY KEY,
+	musician_name VARCHAR(100) NOT NULL,
+	musician_address VARCHAR(255) NOt NULL,
+	musician_phone_no BIGINT NOT NULL
+);
+
+CREATE TABLE instrument (
+	instrument_id INTEGER PRIMARY KEY,
+	instrument_name VARCHAR(100) NOT NULL,
+	instrument_musical_key VARCHAR(10) NOT NULL
+);
+
+CREATE TABLE musician_instrument(
+	musician_ssn VARCHAR(10) REFERENCES musician,
+	instrument_id INTEGER REFERENCES instrument,
+	PRIMARY KEY(musician_ssn, instrument_id)
+);
+
+CREATE TABLE album (
+	album_id INTEGER PRIMARY KEY,
+	producer_ssn VARCHAR(10) REFERENCES musician,
+	album_title VARCHAR(100) NOT NULL,
+	copyright_data VARCHAR(100) NOT NULL,
+	format VARCHAR(10) NOT NULL	
+);
+
+CREATE TABLE song (
+	song_id INTEGER PRIMARY KEY,
+	album_id INTEGER REFERENCES album,
+	song_title VARCHAR(255) NOT NULL,
+	song_author VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE musician_song (
+	musician_ssn VARCHAR(10) REFERENCES musician,
+	song_id INTEGER REFERENCES song,
+	PRIMARY KEY(musician_ssn, song_id)
+);
+
+
+
+
+INSERT INTO musician(musician_ssn, musician_name, musician_address, musician_phone_no)
+VALUES
+	("M001", "Arjun", "Bengaluru", 1234567890),
+	("M002", "Abhijeet", "Madras", 1234567891),
+	("M003", "Manoj", "Mumbai", 4567891234),
+	("M004", "Sushmita", "Chennai", 7894567891),
+	("M005", "Seema", "Sikkim", 4567891329),
+	("M006", "Govind", "Jharkand", 7894567895),
+	("M007", "Suhana", "Uttar Pradesh", 4561231235),
+	("M008", "Ravi", "Maharashtra", 1237894565),
+	("M009", "Sushant", "Kerala", 789789456);
+
+INSERT INTO instrument(instrument_id, instrument_name, instrument_musical_key)
+VALUES
+	(1, "Veena", "C"),
+	(2, "Guitar", "B-Flat"),
+	(3, "Piano", "E-Flat"),
+	(4, "Tabala", "E"),
+	(5, "Violin", "C-Flat"),
+	(6, "Sitar", "B")
+	(7, "Flute", "B-Flat");
+
+INSERT INTO musician_instrument( musician_ssn, instrument_id)
+VALUES 
+	("M001", 1),
+	("M002", 1),
+	("M002", 2),
+	("M002", 3),
+	("M002", 4),
+	("M002", 5),
+	("M002", 6),
+	("M002", 7),
+	("M003", 2),
+	("M003", 3),
+	("M004", 4),
+	("M005", 4),
+	("M006", 5);
+
+INSERT INTO album( album_id, producer_ssn, album_title, copyright_data, format )
+VALUES
+	(1, "M001", "Wish You Were Here", "Pink Floyd Productions", "CD"),
+	(2, "M002", "Nevermind", "George and team Inc.", "MC"),
+	(3, "M003", "Never Believe!", "Bennys company ", "CD"),
+	(4, "M004", "To the moon!", "Flatman Bird Corporations", "MC"),
+	(5, "M005", "Go Jhonny go go go!", "Ragnarock Industries", "MC"),
+	(6, "M006", "Kolar Polar", "Housten Boys Villege company", "CD"),
+	(7, "M007", "Jack Jill Pills", "Negative emotions Corellations Company", "MC")
+	
+	(8, "M002", "No never", "Never and team Inc.", "MC"),
+	(9, "M003", "Believe!", "Believe company ", "CD"),
+	(10, "M004", "To the sun!", "FlSpace Corporations", "MC"),
+	(11, "M005", "There she stands!", "Her Industries", "MC"),
+	(12, "M006", "Polo", "Polo company", "CD"),
+	(13, "M007", "Jack", "Jack Company", "MC");
+	
+INSERT INTO song ( song_id, album_id, song_title, song_author )
+VALUES
+	(1, 1, "Breathe", "Pink Floyd"),
+	(2, 2, "Never Before", "George"),
+	(3, 3, "Go to sleep", "Benny"),
+	(4, 1, "Dream a little dream of me", "Pink Floyd"),
+	(5, 2, "Wasteland", "George and band"),
+	(6, 4, "Fly by", "Flatman"),
+	(7, 3, "Blue", "Benny");
+	
+
+INSERT INTO musician_song ( musician_ssn, song_id )
+VALUES
+	("M001", 1),
+	("M002", 1),
+	("M003", 1),
+	("M004", 1),
+	("M003", 2),
+	("M004", 3),
+	("M005", 3),
+	("M006", 4),
+	("M007", 5),
+	("M008", 6),
+	("M009", 7);
+	
+
+	
+
+SELECT m.musician_name as "Musician",s.song_title as "Song",a.album_title as "Album"
+FROM musician_song as ms,musician as m,	song as s,	album as a
+WHERE ms.musician_ssn = m.musician_ssn 
+AND ms.song_id = s.song_id
+AND a.album_id = s.album_id;
+
+
+SELECT m.musician_name as "Musicians who has not produced any albums"
+FROM musician as m
+WHERE m.musician_ssn NOT IN (
+	SELECT m.musician_ssn
+	FROM musician as m,album as a
+	WHERE m.musician_ssn = a.producer_ssn
+	);
+
+
+
+SELECT COUNT(ms.musician_ssn) as "Total Musicians for song",s.* 
+FROM musician_song as ms,song as s
+WHERE s.song_id = ms.song_id
+GROUP BY ms.song_id
+HAVING COUNT(ms.musician_ssn) > 3;
+
+
+
+SELECT i.instrument_name,COUNT(mi.musician_ssn) as "Total musicians playing the instrument",
+(SELECT COUNT(musician_ssn) FROM musician) as "Total musicians",
+COUNT(i.instrument_id) / (SELECT COUNT(musician_ssn) FROM musician)
+as "Average number of musicians who play instrument"
+FROM instrument as i,musician_instrument as mi
+WHERE i.instrument_id = mi.instrument_id
+GROUP BY mi.instrument_id;
+
+
+
+
+SELECT DISTINCT( m.musician_name )
+FROM musician as m,instrument as i,musician_instrument as p,album as a
+WHERE m.musician_ssn = p.musician_ssn 
+AND	i.instrument_id = p.instrument_id 
+AND	i.instrument_name = 'Flute' 
+AND	EXISTS (SELECT m.musician_name FROM musician as m, instrument as i, musician_instrument as p
+		WHERE m.musician_ssn = p.musician_ssn 
+        AND	i.instrument_id = p.instrument_id 
+        AND	i.instrument_name = 'Guitar' 
+        AND	a.producer_ssn IN (SELECT producer_ssn FROM album
+				WHERE no_of_songs >= (SELECT AVG(no_of_songs)FROM album )));
+
+SELECT m.*,COUNT(mi.instrument_id) as "Number of instruments played by musician"
+FROM musician as m,	instrument as i, musician_instrument as mi
+WHERE m.musician_ssn = mi.musician_ssn 
+AND	i.instrument_id = mi.instrument_id
+GROUP BY mi.musician_ssn
+HAVING COUNT(mi.musician_ssn) = (SELECT COUNT(*) FROM instrument);
+
+
+
+
