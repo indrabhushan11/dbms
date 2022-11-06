@@ -60,7 +60,7 @@ VALUES
 	(3, "Piano", "E-Flat"),
 	(4, "Tabala", "E"),
 	(5, "Violin", "C-Flat"),
-	(6, "Sitar", "B")
+	(6, "Sitar", "B"),
 	(7, "Flute", "B-Flat");
 
 INSERT INTO musician_instrument( musician_ssn, instrument_id)
@@ -87,8 +87,7 @@ VALUES
 	(4, "M004", "To the moon!", "Flatman Bird Corporations", "MC"),
 	(5, "M005", "Go Jhonny go go go!", "Ragnarock Industries", "MC"),
 	(6, "M006", "Kolar Polar", "Housten Boys Villege company", "CD"),
-	(7, "M007", "Jack Jill Pills", "Negative emotions Corellations Company", "MC")
-	
+	(7, "M007", "Jack Jill Pills", "Negative emotions Corellations Company", "MC"),	
 	(8, "M002", "No never", "Never and team Inc.", "MC"),
 	(9, "M003", "Believe!", "Believe company ", "CD"),
 	(10, "M004", "To the sun!", "FlSpace Corporations", "MC"),
