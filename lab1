@@ -1,0 +1,79 @@
+_______________________________________________________________________________________________________________________________________________________________
+
+
+create table musician(ssn varchar(20) primary key, name varchar(30),addr  varchar(30), phone varchar(20));
+
+create table instrument(id varchar(20) primary key, iname varchar(30),mkey  varchar(10));
+
+create table songs(title varchar(10) primary key, author varchar(20), aid varchar(20) references album(aid));
+
+create table album(aid varchar(20) primary key, atitle varchar(30), format varchar(5),rdate date,ssn varchar(20) references musician(ssn));
+
+create table performs(title varchar(10) references songs(title), ssn varchar(20) references musician(ssn), primary key(title,ssn));
+
+create table plays(ssn varchar(20) references musician(ssn), id varchar(20) references instrument(id), primary key(ssn,id));
+
+_____________________________________________________________________________________________________________________________________________________________
+
+insert into musician values(123,"rahaman","bangalore",232456);
+insert into musician values(124,"shreya","mumbai",232477);
+
+
+insert into instrument values(1,"guitar","high");
+insert into instrument values(2,"flute","low");
+
+insert into songs values("jaadu","kiran","102");
+insert into songs values("sri sai","krishna","101");
+
+insert into album values(101,"abc","cd",20120525,123);
+insert into album values(102,"xyz","dvd",19990612,124);
+
+insert into performs values("jaadu",123);
+insert into performs values("jaadu",124);
+
+insert into plays values(123,1),
+                        (124,2),
+                        (125,3),
+                        (126,4),
+                        (128,5),
+                        (123,6);
+
+
+______________________________________________________________________________________________________________________________________________________________
+
+Queries
+1)      List  musician  name,  title  of  the  song  which  he  has  played,  the  album  in  which  song  has occulted.
+
+mysql> select m.name , s.title, a.aid 
+       from musician m, performs p, songs s, album a 
+       where m.ssn=p.ssn 
+       and p.title=s.title 
+       and s.aid=a.aid;
+
+
+2)b:-List the musicians who have not produced any album.
+
+mysql> select m.ssn,m.name from musician m where m.ssn not in(select m.ssn from musician m,album a where m.ssn=a.ssn);
+
+
+3)      List the details of songs which are performed bymore than 3 musicians.
+
+mysql> select title,author from songs where title=(select title from performs p group by title having count(*)>1);
+
+
+
+4)      List the different instruments played by the musicians and the average number of musicians who play the instrument.
+
+mysql> select iname, (select count(ssn) from plays where id=i.id group by id) as no_of_musicians from instrument i;
+
+
+
+5)     Retrieve  album  title  produced  by  the  producer  who  plays  guitar  as  well  as  flute  and  has produced no of songs greater than the average songsproduced by all producers.
+
+mysql> select a.atitle from album a , musician m, plays p,performs pe where a.ssn=m.ssn and m.ssn=p.ssn and p.id=(select id from instrument where id="guitar") and p.id=(select id from instrument where id="flute") having count(pe.title) > (select avg(title) from performs);
+
+6)      List the details of musicians who can play all the instruments present.
+
+mysql> select m.name from musician m, plays p,instrument i where m.ssn=p.ssnhaving count(p.id)=count(i.id);
+
+
