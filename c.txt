@@ -151,7 +151,7 @@ and i.date in(select min(date) from installation);
 
 
 6)
-select sum(i.charge)/(select count(*) as average from installation) as average_scale from installation i
+select sum(i.charge)/(select count(*) as average from installation where ins_type="commercial") as average_scale from installation i
 where i.ins_type="commercial";
 
 
