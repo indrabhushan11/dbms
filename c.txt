@@ -112,7 +112,7 @@ select d.dname,count(d.tin) from distributor d,installation i
 where i.tin=d.tin 
 and i.ins_type="domestic" 
 group by d.tin 
-having count(d.tin)>= ALL(select d.dname,count(d.tin) from distributor d,installation i
+having count(d.tin)>= ALL(select count(d.tin) from distributor d,installation i
 where i.tin=d.tin 
 and i.ins_type="domestic" 
 group by d.tin);
